@@ -52,7 +52,6 @@ The Forever client hides some unit values from addons. Every read is guarded, so
 - Detection range is nameplate range, about 40 yards. Beyond that, nothing an addon can see changes when they rez.
 - A spirit healer rez at the graveyard can't be detected. The "ghost or out of view" timer just keeps counting.
 - An enemy hunter's Feign Death may look like a death. If so, them standing up sets off the alert.
-- This version hasn't been verified in the live client yet. If something doesn't work, open an [issue](https://github.com/drptbl/corpsecamp/issues) and attach a CampProbe log.
 
 ## CampProbe
 
@@ -60,7 +59,7 @@ CampProbe is an optional diagnostic addon. It logs what the client lets an addon
 
 1. Install `CampProbe-<version>.zip` the same way, then get one kill and stay near the corpse while they run back.
 2. Use `/probe` to dump your target and `/probe plates` to dump the visible player nameplates.
-3. Attach `WTF/Account/<ACCOUNT>/SavedVariables/CampProbe.lua` to the issue.
+3. Attach `WTF/Account/<ACCOUNT>/SavedVariables/CampProbe.lua` to an [issue](https://github.com/drptbl/corpsecamp/issues).
 
 ## Development
 
