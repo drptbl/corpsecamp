@@ -1,0 +1,45 @@
+name: CurseForge
+
+# Uploads the release zip to CurseForge whenever a GitHub release is published
+# (pre-releases are skipped). Run it by hand with a tag to upload a release again;
+# only tags from v0.2.1 on carry the upload script and the project ID.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to upload, e.g. v0.2.1
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: curseforge-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/tags/${{ env.TAG }}
+          persist-credentials: false
+
+      - name: Install build tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq luajit zip
+
+      - name: Build and test
+        run: make dist
+
+      - name: Upload to CurseForge
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: scripts/curseforge-upload.sh "$TAG"

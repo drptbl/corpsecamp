@@ -34,6 +34,7 @@ test:
 	@command -v luajit >/dev/null 2>&1 || { echo "luajit not found — brew install luajit"; exit 1; }
 	luajit tests/test_core.lua
 	luajit tests/test_glue.lua
+	bash tests/test_upload.sh
 
 # Release zips: each extracts to its addon folder, ready for Interface/AddOns.
 dist: test
