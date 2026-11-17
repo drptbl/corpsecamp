@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1 - 2026-11-17
+
+Published to CurseForge. No addon changes.
+
+- CurseForge project ID in the TOC
+- publishing a GitHub release uploads the zip to CurseForge
+
 ## 0.2.0 - 2026-11-17
 
 First public release.
