@@ -1,10 +1,11 @@
 ## Interface: 16001
 ## Title: CorpseCamp
 ## Notes: Loud alert the moment the enemy player you're camping resurrects.
-## Version: 0.2.0
+## Version: 0.2.1
 ## Author: drptbl
 ## X-License: MIT
 ## X-Website: https://github.com/drptbl/corpsecamp
+## X-Curse-Project-ID: 1812327
 ## IconTexture: Interface\Icons\INV_Misc_Bone_HumanSkull_01
 ## SavedVariables: CorpseCampDB
 

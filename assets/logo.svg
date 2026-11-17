@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0" stop-color="#3a1418"/>
+      <stop offset="1" stop-color="#09090d"/>
+    </radialGradient>
+    <linearGradient id="stone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c3c8d1"/>
+      <stop offset="1" stop-color="#666b75"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <ellipse cx="256" cy="452" rx="220" ry="42" fill="#18241a"/>
+  <g fill="none" stroke="#e5303e" stroke-linecap="round">
+    <path d="M122 186 A150 150 0 0 0 122 334" stroke-width="16"/>
+    <path d="M78 150 A200 200 0 0 0 78 370" stroke-width="12" opacity="0.6"/>
+    <path d="M390 186 A150 150 0 0 1 390 334" stroke-width="16"/>
+    <path d="M434 150 A200 200 0 0 1 434 370" stroke-width="12" opacity="0.6"/>
+  </g>
+  <path d="M168 444 V232 A88 88 0 0 1 344 232 V444 Z" fill="url(#stone)" stroke="#24272e" stroke-width="10" stroke-linejoin="round"/>
+  <rect x="238" y="200" width="36" height="134" rx="18" fill="#c8102e"/>
+  <circle cx="256" cy="380" r="21" fill="#c8102e"/>
+</svg>

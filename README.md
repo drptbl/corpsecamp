@@ -63,7 +63,7 @@ CampProbe is an optional diagnostic addon. It logs what the client lets an addon
 
 ## Development
 
-You need `luajit` (`brew install luajit`).
+You need `luajit` and `jq` (`brew install luajit jq`).
 
 | Command | What it does |
 | --- | --- |
@@ -71,6 +71,8 @@ You need `luajit` (`brew install luajit`).
 | `make probe-link` | the same for `CampProbe/` |
 | `make test` | run the state machine tests and the addon against a stubbed WoW API |
 | `make dist` | build the release zips into `dist/` |
+
+Publishing a GitHub release runs [.github/workflows/curseforge.yml](.github/workflows/curseforge.yml), which builds the zip from the tag and uploads it to CurseForge. It needs the `CF_API_TOKEN` repo secret, and the tag has to match `## Version` in the TOC. Pre-releases are skipped. To upload a release again, run the workflow by hand with its tag (v0.2.1 or later).
 
 `make addon-link WOW_ADDONS=<dir>` points the link at another AddOns folder.
 
