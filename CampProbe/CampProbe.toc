@@ -1,0 +1,10 @@
+## Interface: 16001
+## Title: CampProbe
+## Notes: Reports what the Forever addon API exposes about enemy players (for CorpseCamp).
+## Version: 0.1.0
+## Author: drptbl
+## X-License: MIT
+## X-Website: https://github.com/drptbl/corpsecamp
+## SavedVariables: CampProbeLog
+
+CampProbe.lua
