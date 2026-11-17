@@ -20,7 +20,10 @@ setup() {
 out=""
 for ((i = 1; i <= $#; i++)); do [ "${!i}" = "-o" ] && { j=$((i + 1)); out="${!j}"; }; done
 case "$*" in
-  *game/wow/versions*) [ "${FAKE_VERSIONS_EXIT:-0}" = 0 ] || exit "$FAKE_VERSIONS_EXIT"; printf '%s' "$FAKE_VERSIONS" ;;
+  *game/wow/versions*) [ "${FAKE_VERSIONS_EXIT:-0}" = 0 ] || exit "$FAKE_VERSIONS_EXIT"
+                       if [ -n "$out" ]; then printf '%s' "$FAKE_VERSIONS" > "$out"; printf '%s' "${FAKE_VERSIONS_STATUS:-200}"
+                       elif [ "${FAKE_VERSIONS_STATUS:-200}" != 200 ]; then exit 22
+                       else printf '%s' "$FAKE_VERSIONS"; fi ;;
   *upload-file*) [ "${FAKE_UPLOAD_EXIT:-0}" = 0 ] || exit "$FAKE_UPLOAD_EXIT"
                  printf '%s' "$FAKE_BODY" > "$out"; printf '%s' "$FAKE_STATUS" ;;
 esac
@@ -29,7 +32,7 @@ EOF
     chmod +x "$work/bin/curl" "$work/bin/gh"
     export STUB_LOG="$work/curl.log" GH_LOG="$work/gh.log" FAKE_VERSIONS="$VERSIONS" FAKE_STATUS=200 FAKE_BODY='{"id":9001}'
     export FAKE_CHANGELOG='- fixed; type=evil @/etc/passwd' CF_API_TOKEN=secret-token
-    unset FAKE_VERSIONS_EXIT FAKE_UPLOAD_EXIT FAKE_GH_EXIT
+    unset FAKE_VERSIONS_EXIT FAKE_VERSIONS_STATUS FAKE_UPLOAD_EXIT FAKE_GH_EXIT
     : > "$STUB_LOG"
 }
 
@@ -123,6 +126,20 @@ case_not_forever() {
     ! run v0.2.1 && grep -q 'not a Forever' "$work/out" && [ ! -s "$STUB_LOG" ]
 }
 setup; check "refuses a non-Forever interface" case_not_forever
+
+# CurseForge echoes the token back in its auth errors ("Token provided: ...").
+case_versions_auth_error() {
+    export FAKE_VERSIONS_STATUS=400 FAKE_VERSIONS='{"errorCode":3,"errorMessage":"API token is malformed. Token provided: secret-token."}'
+    ! run v0.2.1 && grep -q 'HTTP 400' "$work/out" && grep -q 'API token is malformed' "$work/out" \
+        && no_token_in_output && ! uploaded
+}
+setup; check "reports CurseForge's reason for a rejected token, without the token" case_versions_auth_error
+
+case_upload_error_redacted() {
+    export FAKE_STATUS=400 FAKE_BODY='{"errorCode":3,"errorMessage":"API token is malformed. Token provided: SECRET-TOKEN-variant."}'
+    ! run v0.2.1 && grep -q 'API token is malformed' "$work/out" && ! grep -qi 'secret-token' "$work/out"
+}
+setup; check "never prints a token CurseForge echoes back in an upload error" case_upload_error_redacted
 
 echo "$passed passed, $failed failed"
 [ "$failed" -eq 0 ]

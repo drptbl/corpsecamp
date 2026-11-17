@@ -32,8 +32,25 @@ game_version="$((interface / 10000)).$((interface / 100 % 100)).$((interface % 1
 zip="dist/CorpseCamp-$version.zip"
 [ -f "$zip" ] || die "$zip not found (run make dist)"
 
-versions="$(curl -fsS --retry 3 --max-time 30 -H "x-api-token: $CF_API_TOKEN" "$API/game/wow/versions")" \
-    || die "could not list CurseForge game versions"
+response="$(mktemp)"
+trap 'rm -f "$response"' EXIT
+
+# Prints CurseForge's error message for a failed call. Its auth errors echo the
+# token back ("Token provided: ..."), so that part and the token itself are redacted.
+fail_with_response() {
+    local message
+    message="$(jq -r '.errorMessage // empty' "$response" 2>/dev/null || true)"
+    [ -n "$message" ] || message="$(head -c 300 "$response")"
+    message="${message//"$CF_API_TOKEN"/<REDACTED>}"
+    printf 'curseforge-upload: %s failed with HTTP %s: %s\n' "$1" "$2" \
+        "$(printf '%s' "$message" | sed -E 's/(Token provided:).*/\1 <REDACTED>/')" >&2
+    exit 1
+}
+
+status="$(curl -sS --retry 3 --max-time 30 -o "$response" -w '%{http_code}' \
+    -H "x-api-token: $CF_API_TOKEN" "$API/game/wow/versions")" || die "could not list CurseForge game versions"
+[ "$status" = "200" ] || fail_with_response "listing game versions" "$status"
+versions="$(cat "$response")"
 version_id="$(jq -r --argjson t "$FOREVER_TYPE_ID" --arg v "$game_version" \
     '[.[] | select(.gameVersionTypeID == $t and .name == $v) | .id] | if length == 1 then .[0] else empty end' \
     <<<"$versions")"
@@ -43,8 +60,6 @@ changelog="$(gh release view "$tag" --json body --jq .body)" || die "could not r
 metadata="$(jq -cn --arg changelog "$changelog" --arg name "CorpseCamp $version" --argjson gv "$version_id" \
     '{changelog: $changelog, changelogType: "markdown", displayName: $name, gameVersions: [$gv], releaseType: "release"}')"
 
-response="$(mktemp)"
-trap 'rm -f "$response"' EXIT
 # No --retry here: a retried POST could upload the file twice.
 status="$(curl -sS --max-time 300 -o "$response" -w '%{http_code}' \
     -H "x-api-token: $CF_API_TOKEN" \
@@ -52,9 +67,5 @@ status="$(curl -sS --max-time 300 -o "$response" -w '%{http_code}' \
     -F "file=@$zip" \
     "$API/projects/$project_id/upload-file")" || die "upload request failed"
 
-if [ "$status" != "200" ]; then
-    echo "curseforge-upload: HTTP $status" >&2
-    cat "$response" >&2
-    exit 1
-fi
+[ "$status" = "200" ] || fail_with_response "upload" "$status"
 echo "uploaded $zip to CurseForge project $project_id as game version $game_version (file $(jq -r '.id' "$response"))"
